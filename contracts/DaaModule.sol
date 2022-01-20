@@ -13,9 +13,24 @@ interface GnosisSafe {
     function execTransactionFromModule(address to, uint256 value, bytes calldata data, Enum.Operation operation)
         external
         returns (bool success);
+    
+    function getOwners() external view returns (address[] memory);
 }
 
 contract DaaModule is SignatureDecoder {
 
+    address public _whitelisted;
+    GnosisSafe public _safe;
+    address[] public spenders;
+
+    constructor(address whitelisted, GnosisSafe safe){
+        _whitelisted = whitelisted;
+        _safe = safe;
+        spenders = safe.getOwners();
+    }
+
     
+
+
+
 }
