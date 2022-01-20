@@ -11,7 +11,7 @@ def isolate(fn_isolation):
 
 @pytest.fixture(scope="module")
 def daaModule(DaaModule, accounts):
-    return DaaModule.deploy({'from': accounts[0]})
+    return DaaModule.deploy(accounts[0], "0x5E89f8d81C74E311458277EA1Be3d3247c7cd7D1", {'from': accounts[0]})
 
 
 # @pytest.fixture(scope="module")
