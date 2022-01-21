@@ -13,7 +13,13 @@ def doSomething( accounts):
 # get usdc
 @pytest.fixture(scope="session")
 def usdc(interface):
-    yield interface.IERC20Minimal('0x2791bca1f2de4661ed88a30c99a7a9449aa84174')
+    yield interface.IERC20Minimal('0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48')
+
+# get 1inch
+@pytest.fixture(scope="session")
+def oneinchToken(interface):
+    yield interface.IERC20Minimal('0x111111111117dc0aa78b770fa6a738034120c302')
+
 
 # get random safe
 @pytest.fixture(scope="session")
@@ -33,9 +39,21 @@ def test_init(accounts, daaModule,gnosisSafe):
     assert accounts[0] == daaModule._whitelisted()
     assert gnosisSafe == daaModule._safe()
 
-def test_spend(accounts,usdc, daaModule,gnosisSafe):
+def test_spendERC20(accounts,oneinchToken, daaModule,gnosisSafe):
     gnosisSafe.enableModule(daaModule, {'from': gnosisSafe})
     whitelisted = daaModule._whitelisted()
-    daaModule.executeTransfer(usdc,whitelisted,10)
-    pass
+    spenders = gnosisSafe.getOwners()
+    balancePre = oneinchToken.balanceOf(whitelisted)
+    daaModule.executeTransfer(oneinchToken,whitelisted,10*10**6,{'from': spenders[0]})
+    assert balancePre < oneinchToken.balanceOf(whitelisted)
     
+def test_spendETH(accounts,oneinchToken, daaModule,gnosisSafe):
+    gnosisSafe.enableModule(daaModule, {'from': gnosisSafe})
+    whitelisted = accounts.at(daaModule._whitelisted())
+    spenders = gnosisSafe.getOwners()
+    # give safe some eth
+    accounts[1].transfer(gnosisSafe, '5 ether')
+    balancePre = whitelisted.balance()
+    daaModule.executeTransfer("0x0000000000000000000000000000000000000000",whitelisted.address,'1 ether',{'from': spenders[0]})
+    assert balancePre < whitelisted.balance()
+    assert whitelisted.balance() == (balancePre + "1 ether") 
