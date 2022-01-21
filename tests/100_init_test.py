@@ -26,6 +26,16 @@ def oneinchToken(interface):
 def gnosisSafe(interface):
     yield interface.IGnosisSafe('0x5E89f8d81C74E311458277EA1Be3d3247c7cd7D1')
 
+# get random NFT contract
+@pytest.fixture(scope="session")
+def boredApes(interface):
+    yield interface.IERC721('0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D')
+
+# get random ERC1155 contract
+@pytest.fixture(scope="session")
+def erc1155s(interface):
+    yield interface.IERC1155('0x495f947276749Ce646f68AC8c248420045cb7b5e')
+
 
 @pytest.fixture(autouse=True)
 def def_setters( accounts):
@@ -58,6 +68,30 @@ def test_spendETH(accounts,oneinchToken, daaModule,gnosisSafe):
     assert balancePre < whitelisted.balance()
     assert whitelisted.balance() == (balancePre + "1 ether") 
 
+
+def test_spendNFT(accounts,boredApes, daaModule,gnosisSafe):
+    gnosisSafe.enableModule(daaModule, {'from': gnosisSafe})
+    whitelisted = daaModule._whitelisted()
+    spenders = gnosisSafe.getOwners()
+    nftOwner = boredApes.ownerOf(3650)
+    boredApes.transferFrom(nftOwner,gnosisSafe,3650,{'from': nftOwner})
+    daaModule.executeTransferNFT(boredApes,3650,{'from': spenders[0]})
+    assert boredApes.ownerOf(3650) == whitelisted
+
+# this will fail should erc1155 token id ownership change -> in that case change owner address 
+def test_spendERC1155(accounts,erc1155s, daaModule,gnosisSafe):
+    gnosisSafe.enableModule(daaModule, {'from': gnosisSafe})
+    whitelisted = daaModule._whitelisted()
+    spenders = gnosisSafe.getOwners()
+    nftOwner = "0xb8f0f88edb25717acaab9ee86ab837a3a6307919"
+    balancePre = erc1155s.balanceOf(nftOwner,4162610359126309372267704129311350541016535808838210995016752466896109961217)
+    erc1155s.safeTransferFrom(nftOwner,gnosisSafe,4162610359126309372267704129311350541016535808838210995016752466896109961217,1,"0x0",{'from': nftOwner})
+    daaModule.executeTransferERC1155(erc1155s,4162610359126309372267704129311350541016535808838210995016752466896109961217,1,{'from': spenders[0]})
+    balancePost = erc1155s.balanceOf(nftOwner,4162610359126309372267704129311350541016535808838210995016752466896109961217)
+    assert balancePost == balancePre -1
+    assert erc1155s.balanceOf(whitelisted,4162610359126309372267704129311350541016535808838210995016752466896109961217) == 1
+   
+    
 # revert: sender not safe owner
 @pytest.mark.xfail
 def test_spendFailNonOwner(accounts,oneinchToken, daaModule,gnosisSafe):

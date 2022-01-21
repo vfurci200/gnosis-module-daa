@@ -16,6 +16,7 @@ interface GnosisSafe {
         external
         returns (bool success);
     
+     /// @dev Gets list of safe owners
     function getOwners() external view returns (address[] memory);
 
 }
@@ -29,6 +30,8 @@ contract DaaModule {
 
 
     event ExecuteTransfer(address indexed safe, address token, address from, address to, uint96 value);
+    event ExecuteTransferNFT(address indexed safe, address token, address from, address to, uint96 id);
+    event ExecuteTransferERC1155(address indexed safe, address token, address from, address to, uint256 id, uint256 amount);
     
     constructor(address payable whitelisted, GnosisSafe safe){
         _whitelisted = whitelisted;
@@ -59,6 +62,49 @@ contract DaaModule {
             bytes memory data = abi.encodeWithSignature("transfer(address,uint256)", to, amount);
             require(safe.execTransactionFromModule(token, 0, data, Enum.Operation.Call), "Could not execute token transfer");
         }
+    }
+
+    /// @dev Allows to perform a NFT transfer to the whitelisted address.
+    /// @param token Token contract address. 
+    /// @param id Id of NFT that should be transferred.
+    function executeTransferNFT(
+        address token,
+        uint96 id
+    ) 
+        public 
+        isAuthorized(msg.sender)
+    {
+        // Transfer token
+        transferNFT(_safe, token, _whitelisted, id);
+        emit ExecuteTransferNFT(address(_safe), token, msg.sender, _whitelisted, id);
+    }
+
+    function transferNFT(GnosisSafe safe, address token, address payable to, uint96 id) private {
+        bytes memory data = abi.encodeWithSignature("transferFrom(address,address,uint256)", safe, to, id);
+        require(safe.execTransactionFromModule(token, 0, data, Enum.Operation.Call), "Could not execute NFT token transfer");
+    }
+
+
+    /// @dev Allows to perform a ERC1155 transfer to the whitelisted address.
+    /// @param token Token contract address. 
+    /// @param id Id of ERC1155 that should be transferred.
+    /// @param amount Number of tokens that should be transferred.
+    function executeTransferERC1155(
+        address token,
+        uint256 id,
+        uint256 amount
+    ) 
+        public 
+        isAuthorized(msg.sender)
+    {
+        // Transfer token
+        transferERC1155(_safe, token, _whitelisted, id, amount);
+        emit ExecuteTransferERC1155(address(_safe), token, msg.sender, _whitelisted, id, amount);
+    }
+
+    function transferERC1155(GnosisSafe safe, address token, address payable to, uint256 id, uint256 amount) private {
+        bytes memory data = abi.encodeWithSignature("safeTransferFrom(address,address,uint256,uint256,bytes)", safe, to,id, amount, "0x0");
+        require(safe.execTransactionFromModule(token, 0, data, Enum.Operation.Call), "Could not execute ERC1155 token transfer");
     }
 
     modifier isAuthorized(address sender) {
