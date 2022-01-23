@@ -40,6 +40,5 @@ build/
 
 *.pyc
 
-contracts/AllowanceModule.sol
 brownie-config.yaml
 
