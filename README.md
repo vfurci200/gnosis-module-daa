@@ -1,5 +1,12 @@
 # Gnosis Safe Daa Module
 
+Once enabled, the module allows safe owner addresses to transfer tokens to a whitelisted address with a single transaction.
+- The whitelisted address is initialised at deployment
+- Any payable address can be the whitelisted address
+- The whitelisted address is not modifiable
+- Only safe owners addresses are authorized to send transactions (no delegates, no external addresses (with owners signatures) submitting transactions)
+- The authorized addresses correspond to the safe owner addresses at the time of the transaction
+- Only Ether and ERC20 token transfers allowed
 
 ## Prerequisites
 
@@ -42,11 +49,5 @@ You can get a `WEB3_INFURA_PROJECT_ID` by getting a free trial of [Infura](https
 You can get a `ETHERSCAN_TOKEN` by registering at [Etherscan](etherscan.io/).
 You could also set your `PRIVATE_KEY`, which you can find from your ethereum wallet like [metamask](https://metamask.io/).
 
-1. Run Tests in Development network:
-`brownie test --network development`
-or
-Run Tests on Polygon network:
-`brownie test --network polygon-fork`
-
-2. Run in console:
-`brownie console --network polygon-fork`
+- Run Tests on Mainnet forked network:
+`brownie test --network mainnet-fork`
