@@ -4,6 +4,8 @@ pragma solidity >=0.7.0 <0.9.0;
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import "./Enum.sol";
 
+/// @title Gnosis Module DAA - A gnois safe module to execute transactions to a trusted whitelisted address.
+/// @author Stefan George - <stefan@gnosis.io>
 
 interface GnosisSafe {
     /// @dev Allows a Module to execute a Safe transaction without any further confirmations.
@@ -29,9 +31,7 @@ contract DaaModule {
     EnumerableSet.AddressSet private _spenders;
 
     event ExecuteTransfer(address indexed safe, address token, address from, address to, uint96 value);
-    event ExecuteTransferNFT(address indexed safe, address token, address from, address to, uint96 id);
-    event ExecuteTransferERC1155(address indexed safe, address token, address from, address to, uint256 id, uint256 amount);
-    
+
     constructor(address payable whitelisted, GnosisSafe safe){
         _whitelisted = whitelisted;
         _safe = safe;
