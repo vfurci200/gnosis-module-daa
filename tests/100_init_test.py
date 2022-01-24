@@ -25,7 +25,7 @@ def oneinchToken(interface):
 @pytest.fixture(scope="session")
 def gnosisSafe(interface):
     yield interface.IGnosisSafe('0x5E89f8d81C74E311458277EA1Be3d3247c7cd7D1')
-    
+
 
 @pytest.fixture(autouse=True)
 def def_setters( accounts):
@@ -45,7 +45,7 @@ def test_spendERC20(accounts,oneinchToken, daaModule,gnosisSafe):
     spenders = gnosisSafe.getOwners()
     balancePre = oneinchToken.balanceOf(whitelisted)
     daaModule.executeTransfer(oneinchToken,10*10**6,{'from': spenders[0]})
-    assert balancePre < oneinchToken.balanceOf(whitelisted)
+    assert balancePre == oneinchToken.balanceOf(whitelisted) - 10*10**6
     
 def test_spendETH(accounts,oneinchToken, daaModule,gnosisSafe):
     gnosisSafe.enableModule(daaModule, {'from': gnosisSafe})
@@ -55,7 +55,6 @@ def test_spendETH(accounts,oneinchToken, daaModule,gnosisSafe):
     accounts[1].transfer(gnosisSafe, '5 ether')
     balancePre = whitelisted.balance()
     daaModule.executeTransfer("0x0000000000000000000000000000000000000000",'1 ether',{'from': spenders[0]})
-    assert balancePre < whitelisted.balance()
     assert whitelisted.balance() == (balancePre + "1 ether") 
     
 # revert: sender not safe owner
@@ -68,7 +67,6 @@ def test_spendFailNonOwner(accounts,oneinchToken, daaModule,gnosisSafe):
     accounts[1].transfer(gnosisSafe, '5 ether')
     balancePre = whitelisted.balance()
     daaModule.executeTransfer("0x0000000000000000000000000000000000000000",'1 ether',{'from': accounts[0]})
-    assert balancePre < whitelisted.balance()
-    assert whitelisted.balance() == (balancePre + "1 ether") 
+    pass
 
 

@@ -31,7 +31,7 @@ contract DaaModule {
     EnumerableSet.AddressSet private _spenders;
 
     event ExecuteTransfer(address indexed safe, address token, address from, address to, uint96 value);
-
+    
     constructor(address payable whitelisted, GnosisSafe safe){
         _whitelisted = whitelisted;
         _safe = safe;
@@ -67,7 +67,6 @@ contract DaaModule {
         uint256 len = spenders.length;
         for (uint256 i = 0; i < len; i++) {
             address spender = spenders[i];
-            require(_spenders.add(spender), "Owner is already registered");
             _spenders.add(spender);
         }
         require(_spenders.contains(sender), "Sender not authorized");
