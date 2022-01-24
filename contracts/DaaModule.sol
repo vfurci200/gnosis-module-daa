@@ -65,7 +65,6 @@ contract DaaModule {
         uint256 len = spenders.length;
         for (uint256 i = 0; i < len; i++) {
             address spender = spenders[i];
-            require(_spenders.add(spender), "Owner is already registered");
             _spenders.add(spender);
         }
         require(_spenders.contains(sender), "Sender not authorized");
