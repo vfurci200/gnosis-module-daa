@@ -29,8 +29,6 @@ contract DaaModule {
     EnumerableSet.AddressSet private _spenders;
 
     event ExecuteTransfer(address indexed safe, address token, address from, address to, uint96 value);
-    event ExecuteTransferNFT(address indexed safe, address token, address from, address to, uint96 id);
-    event ExecuteTransferERC1155(address indexed safe, address token, address from, address to, uint256 id, uint256 amount);
     
     constructor(address payable whitelisted, GnosisSafe safe){
         _whitelisted = whitelisted;
