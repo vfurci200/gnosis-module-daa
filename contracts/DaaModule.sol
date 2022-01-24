@@ -4,8 +4,8 @@ pragma solidity >=0.7.0 <0.9.0;
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import "./Enum.sol";
 
-/// @title Gnosis Module DAA - A gnois safe module to execute transactions to a trusted whitelisted address.
-/// @author Stefan George - <stefan@gnosis.io>
+/// @title Safe Module DAA - A gnosis safe module to execute transactions to a trusted whitelisted address.
+
 
 interface GnosisSafe {
     /// @dev Allows a Module to execute a Safe transaction without any further confirmations.
