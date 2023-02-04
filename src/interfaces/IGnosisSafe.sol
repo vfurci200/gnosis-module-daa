@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 pragma solidity >=0.6.0;
 
-import "../contracts/Enum.sol";
+import {Enum} from "../contracts/utils/Enum.sol";
 
 interface IGnosisSafe {
     /// @dev Allows a Module to execute a Safe transaction without any further confirmations.

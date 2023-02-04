@@ -1,35 +1,22 @@
 // SPDX-License-Identifier: LGPL-3.0-only
 pragma solidity >=0.7.0 <0.9.0;
 
-import "./Enum.sol";
+import "../interfaces/IGnosisSafe.sol";
 
 /// @title Safe Module DAA - A gnosis safe module to execute transactions to a trusted whitelisted address.
 /// @author vinc.eth
-
-interface GnosisSafe {
-    /// @dev Allows a Module to execute a Safe transaction without any further confirmations.
-    /// @param to Destination address of module transaction.
-    /// @param value Ether value of module transaction.
-    /// @param data Data payload of module transaction.
-    /// @param operation Operation type of module transaction.
-    function execTransactionFromModule(address to, uint256 value, bytes calldata data, Enum.Operation operation)
-        external
-        returns (bool success);
-    
-     /// @dev Gets list of safe owners
-    function getOwners() external view returns (address[] memory);
-
-}
 
 
 contract DaaModule {
 
     address payable public _whitelisted;
-    GnosisSafe public _safe;
+    IGnosisSafe public _safe;
+    string public constant name = "DAA Withdraw Module";
+    string public constant version  = "1";
 
     event ExecuteTransfer(address indexed safe, address token, address from, address to, uint96 value);
     
-    constructor(address payable whitelisted, GnosisSafe safe){
+    constructor(address payable whitelisted, IGnosisSafe safe){
         _whitelisted = whitelisted;
         _safe = safe;
     }
@@ -43,13 +30,13 @@ contract DaaModule {
     ) 
         public 
     {
-        require(isAuthorized(msg.sender));
+        isAuthorized(msg.sender);
         // Transfer token
         transfer(_safe, token, _whitelisted, amount);
         emit ExecuteTransfer(address(_safe), token, msg.sender, _whitelisted, amount);
     }
 
-    function transfer(GnosisSafe safe, address token, address payable to, uint96 amount) private {
+    function transfer(IGnosisSafe safe, address token, address payable to, uint96 amount) private {
         if (token == address(0)) {
             // solium-disable-next-line security/no-send
             require(safe.execTransactionFromModule(to, amount, "", Enum.Operation.Call), "Could not execute ether transfer");

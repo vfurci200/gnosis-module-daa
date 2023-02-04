@@ -42,3 +42,9 @@ build/
 
 brownie-config.yaml
 
+foundry.toml
+script/
+cache/
+out/
+.gitmodules
+lib/forge-std
